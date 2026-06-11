@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SubtitleCat API</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; border-bottom: 3px solid #ffc107; display: inline-block; padding-bottom: 5px; }
+        .endpoint {
+            background: #f8f9fa;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .method { background: #28a745; color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; }
+        .url { font-family: monospace; font-size: 16px; margin: 10px 0; color: #007bff; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        code { font-family: 'Courier New', monospace; }
+        .example { margin-top: 15px; }
+        .badge { background: #17a2b8; color: white; padding: 2px 8px; border-radius: 3px; font-size: 11px; margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 SubtitleCat API</h1>
+        <p>Unofficial API for subtitlecat.com - Search and download subtitles programmatically</p>
+        
+        <div class="endpoint">
+            <span class="method">GET</span>
+            <span class="badge">Search</span>
+            <div class="url">/api/search?q={query}</div>
+            <p>Search for subtitles by keyword</p>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre>https://your-domain.netlify.app/api/search?q=Iron+man</pre>
+            </div>
+        </div>
+        
+        <div class="endpoint">
+            <span class="method">GET</span>
+            <span class="badge">Details</span>
+            <div class="url">/api/subtitle-details?path={subtitle_path}</div>
+            <p>Get detailed information about a specific subtitle including available languages and original content</p>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre>https://your-domain.netlify.app/api/subtitle-details?path=/subs/589/Iron%20Man-Armored%20Adventures%20%282009%29%20-%20S01E14%20-%20Man%20and%20Iron%20Man.ro.html</pre>
+            </div>
+        </div>
+        
+        <div class="endpoint">
+            <span class="method">GET</span>
+            <span class="badge">Download</span>
+            <div class="url">/api/subtitle-download?path={download_path}</div>
+            <p>Download subtitle file directly</p>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre>https://your-domain.netlify.app/api/subtitle-download?path=/subs/770/Iron%20Man-Armored%20Adventures%20(2009)%20-%20S01E14%20-%20Man%20and%20Iron%20Man.ro-en.srt</pre>
+            </div>
+        </div>
+        
+        <h2>🔧 Usage Examples</h2>
+        
+        <h3>JavaScript (Fetch API)</h3>
+        <pre>// Search for subtitles
+const searchResponse = await fetch('https://your-domain.netlify.app/api/search?q=Iron+man');
+const searchData = await searchResponse.json();
+console.log(searchData.results.items);
+
+// Get subtitle details
+const detailsResponse = await fetch(`https://your-domain.netlify.app/api/subtitle-details?path=${encodeURIComponent(searchData.results.items[0].relative_url)}`);
+const details = await detailsResponse.json();
+console.log(details.available_languages);
+
+// Download subtitle
+const downloadUrl = details.available_languages.find(lang => lang.name === 'English').download_url;
+window.open(`https://your-domain.netlify.app/api/subtitle-download?path=${encodeURIComponent(downloadUrl)}`);</pre>
+
+        <h3>Python</h3>
+        <pre>import requests
+
+# Search
+response = requests.get('https://your-domain.netlify.app/api/search?q=Iron+man')
+data = response.json()
+
+# Get first subtitle details
+subtitle_path = data['results']['items'][0]['relative_url']
+details = requests.get(f'https://your-domain.netlify.app/api/subtitle-details?path={subtitle_path}').json()
+
+# Download English subtitle
+english_sub = next(lang for lang in details['available_languages'] if lang['name'] == 'English')
+subtitle_content = requests.get(f'https://your-domain.netlify.app/api/subtitle-download?path={english_sub["download_url"]}').text
+print(subtitle_content[:500])  # Print first 500 chars</pre>
+
+        <h3>cURL</h3>
+        <pre># Search
+curl "https://your-domain.netlify.app/api/search?q=Iron+man"
+
+# Get details
+curl "https://your-domain.netlify.app/api/subtitle-details?path=/subs/589/Iron%20Man-Armored%20Adventures%20%282009%29%20-%20S01E14%20-%20Man%20and%20Iron%20Man.ro.html"
+
+# Download
+curl -O "https://your-domain.netlify.app/api/subtitle-download?path=/subs/770/Iron%20Man-Armored%20Adventures%20(2009)%20-%20S01E14%20-%20Man%20and%20Iron%20Man.ro-en.srt"</pre>
+
+        <h2>📦 Response Format</h2>
+        
+        <h3>Search Response:</h3>
+        <pre>{
+  "success": true,
+  "query": "Iron man",
+  "results": {
+    "total_found": 120,
+    "total_subtitles_in_database": 14376392,
+    "items": [
+      {
+        "title": "Iron Man-Armored Adventures (2009) - S01E14 - Man and Iron Man.ro",
+        "relative_url": "/subs/589/Iron%20Man-Armored%20Adventures%20%282009%29%20-%20S01E14%20-%20Man%20and%20Iron%20Man.ro.html",
+        "full_url": "https://www.subtitlecat.com/subs/589/...",
+        "size": "26 KB",
+        "downloads": 20,
+        "languages": 20,
+        "featured": false
+      }
+    ]
+  }
+}</pre>
+
+        <h3>Details Response:</h3>
+        <pre>{
+  "success": true,
+  "title": "All language subtitles for...",
+  "original_subtitles": [...],
+  "original_subtitle_file": "https://...",
+  "available_languages": [...],
+  "total_languages": 20
+}</pre>
+
+        <h2>🚀 Deployment to Netlify</h2>
+        <ol>
+            <li>Push this code to a GitHub repository</li>
+            <li>Login to <a href="https://netlify.com" target="_blank">Netlify</a></li>
+            <li>Click "New site from Git"</li>
+            <li>Select your repository</li>
+            <li>Build settings:
+                <ul>
+                    <li>Build command: <code>npm install</code></li>
+                    <li>Publish directory: <code>public</code></li>
+                </ul>
+            </li>
+            <li>Click "Deploy site"</li>
+        </ol>
+        
+        <h2>⚠️ Important Notes</h2>
+        <ul>
+            <li>This is an unofficial API - use responsibly</li>
+            <li>Respect the website's terms of service</li>
+            <li>Consider implementing rate limiting for production use</li>
+            <li>Some subtitle files may require translation (marked as 'translate_required')</li>
+        </ul>
+        
+        <hr>
+        <p style="text-align: center; color: #666;">Made with ❤️ for the developer community</p>
+    </div>
+</body>
+</html>
